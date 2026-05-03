@@ -1,1 +1,275 @@
 
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Latihan Soal IPAS</title>
+    <style>
+        :root {
+            --primary: #4a90e2;
+            --success: #2ecc71;
+            --danger: #e74c3c;
+            --dark: #2c3e50;
+            --light: #f9f9f9;
+            --shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f0f2f5;
+            color: var(--dark);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 700px;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary);
+            margin-bottom: 10px;
+            font-size: 24px;
+        }
+
+        .instruction {
+            text-align: center;
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .question-card {
+            background: var(--light);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 5px solid var(--primary);
+            transition: all 0.3s ease;
+        }
+
+        .question-text {
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: block;
+            line-height: 1.5;
+        }
+
+        .input-group {
+            position: relative;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+
+        input:disabled {
+            background-color: #eee;
+            cursor: not-allowed;
+        }
+
+        .feedback {
+            margin-top: 10px;
+            font-weight: bold;
+            font-size: 14px;
+            display: none;
+            padding: 8px;
+            border-radius: 5px;
+        }
+
+        .correct-bg { border-color: var(--success) !important; background-color: #e8f8f0; }
+        .wrong-bg { border-color: var(--danger) !important; background-color: #fdf2f2; }
+
+        .correct-text { color: var(--success); }
+        .wrong-text { color: var(--danger); }
+
+        #final-score-container {
+            display: none;
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            background: var(--primary);
+            color: white;
+            border-radius: 10px;
+        }
+
+        .score-value {
+            font-size: 48px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .btn-reset {
+            background: white;
+            color: var(--primary);
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 15px;
+            transition: opacity 0.3s;
+        }
+
+        .btn-reset:hover {
+            opacity: 0.9;
+        }
+
+        .summary-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 15px;
+            width: 100%;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Latihan Soal IPAS</h1>
+    <p class="instruction">Ketik jawabanmu lalu tekan <b>Enter</b> atau klik di luar kotak. <br>Jawaban akan langsung diperiksa!</p>
+    
+    <div id="quiz-wrapper"></div>
+
+    <button id="show-score-btn" class="summary-btn" onclick="showFinalScore()">Lihat Hasil Akhir</button>
+
+    <div id="final-score-container">
+        <h2>Hasil Latihan Kamu</h2>
+        <div class="score-value" id="score-display">0 / 25</div>
+        <p id="score-comment"></p>
+        <button class="btn-reset" onclick="location.reload()">Ulangi Latihan</button>
+    </div>
+</div>
+
+<script>
+    const questions = [
+        { q: "Percampuran dua kebudayaan atau lebih yang saling bertemu dan saling mempengaruhi disebut ...", a: "Akulturasi" },
+        { q: "Yang termasuk warisan budaya tak benda yaitu ...", a: "Bahasa daerah" },
+        { q: "Lukisan, patung, dan manuskrip adalah warisan budaya benda dalam bentuk ...", a: "Artefak sejarah" },
+        { q: "Warisan budaya terbentuk karena adanya ...", a: "Akulturasi" },
+        { q: "Yang termasuk seni pertunjukan, kecuali ...", a: "Seni bahasa" },
+        { q: "Pencak silat termasuk warisan budaya tak benda dari negara ...", a: "Indonesia" },
+        { q: "Cara menjaga budaya daerah, kecuali ...", a: "Menonton pertunjukan budaya barat" },
+        { q: "Festival Reog Ponorogo berasal dari daerah ...", a: "Jawa Timur" },
+        { q: "Warisan budaya harus dilestarikan supaya tidak ...", a: "Hilang keberadaannya" },
+        { q: "Segala aktivitas manusia untuk memenuhi kebutuhan hidup disebut ...", a: "Kegiatan ekonomi" },
+        { q: "Kegiatan menggunakan barang atau jasa untuk memenuhi kebutuhan disebut ...", a: "Konsumsi" },
+        { q: "Urutan kegiatan ekonomi yang tepat yaitu ...", a: "Produksi - distribusi - konsumsi" },
+        { q: "Jenis pekerjaan di daerah dataran tinggi yaitu ...", a: "Perkebunan" },
+        { q: "Contoh pekerjaan di bidang jasa yaitu ...", a: "Tukang potong rambut" },
+        { q: "Contoh kegiatan distribusi yaitu ...", a: "Pak Bani menjual beras di toko" },
+        { q: "Masyarakat daerah pantai biasanya bermata pencaharian sebagai ...", a: "Nelayan" },
+        { q: "Aktivitas ekonomi masyarakat Indonesia dipengaruhi oleh ...", a: "Kondisi geografis" },
+        { q: "Produk khas Indonesia dari Yogyakarta yaitu ...", a: "Batik" },
+        { q: "Makanan khas Jawa Barat yaitu ...", a: "Tutug oncom" },
+        { q: "Arsik adalah makanan khas dari ...", a: "Sumatra Utara" },
+        { q: "Gamelan adalah alat musik tradisional dari ...", a: "Jawa" },
+        { q: "Meningkatkan kualitas produk daerah membuat produk menjadi ...", a: "Produk unggulan" },
+        { q: "Cara memperkenalkan produk Indonesia, kecuali ...", a: "Melakukan kunjungan luar negeri" },
+        { q: "Cara yang tidak boleh dilakukan untuk menjaga produk khas Indonesia yaitu ...", a: "Memakai produk impor" },
+        { q: "Aktivitas ekonomi mempengaruhi kondisi perekonomian di suatu ...", a: "Daerah" }
+    ];
+
+    let correctCount = 0;
+    let answeredCount = 0;
+
+    const wrapper = document.getElementById('quiz-wrapper');
+
+    function init() {
+        questions.forEach((item, index) => {
+            const card = document.createElement('div');
+            card.className = 'question-card';
+            card.innerHTML = `
+                <span class="question-text">${index + 1}. ${item.q}</span>
+                <div class="input-group">
+                    <input type="text" id="ans-${index}" placeholder="Jawaban kamu..." onchange="validate(${index})">
+                    <div id="feedback-${index}" class="feedback"></div>
+                </div>
+            `;
+            wrapper.appendChild(card);
+        });
+    }
+
+    function validate(index) {
+        const input = document.getElementById(`ans-${index}`);
+        const feedback = document.getElementById(`feedback-${index}`);
+        const userValue = input.value.trim().toLowerCase();
+        const correctAnswer = questions[index].a.toLowerCase();
+
+        if (userValue === "") return;
+
+        input.disabled = true;
+        answeredCount++;
+
+        if (userValue === correctAnswer) {
+            input.classList.add('correct-bg');
+            feedback.innerHTML = "Benar! ✓";
+            feedback.className = "feedback correct-text";
+            correctCount++;
+        } else {
+            input.classList.add('wrong-bg');
+            feedback.innerHTML = "Salah. Jawaban yang benar: " + questions[index].a;
+            feedback.className = "feedback wrong-text";
+        }
+        feedback.style.display = "block";
+    }
+
+    function showFinalScore() {
+        if (answeredCount < questions.length) {
+            if(!confirm("Kamu belum menjawab semua soal. Tetap ingin melihat hasil akhir?")) return;
+        }
+
+        document.getElementById('quiz-wrapper').style.display = 'none';
+        document.getElementById('show-score-btn').style.display = 'none';
+        
+        const container = document.getElementById('final-score-container');
+        const display = document.getElementById('score-display');
+        const comment = document.getElementById('score-comment');
+
+        container.style.display = 'block';
+        display.innerText = `${correctCount} / ${questions.length}`;
+
+        if (correctCount === questions.length) {
+            comment.innerText = "Sempurna! Kamu hebat sekali.";
+        } else if (correctCount > 15) {
+            comment.innerText = "Bagus! Teruskan belajarnya.";
+        } else {
+            comment.innerText = "Jangan menyerah, ayo coba lagi!";
+        }
+    }
+
+    init();
+</script>
+
+</body>
+</html>
+
+
+
